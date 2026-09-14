@@ -1,0 +1,127 @@
+sop_id: high-cpu-usage
+name: CPU 使用率过高诊断
+description: 当服务 CPU 使用率持续过高时的标准诊断流程
+version: "1.0"
+
+trigger:
+  alert_rule: high_cpu_usage
+  severity: warning
+  conditions:
+    - metric: cpu_usage_percent
+      operator: ">="
+      threshold: 80
+      duration: "5m"
+
+steps:
+  # 第一步: 收集 CPU 指标
+  - id: collect_cpu_metrics
+    type: tool_call
+    description: 收集 CPU 使用率指标
+    tool: query_metrics
+    tool_args:
+      metric: "cpu_usage_percent"
+      service: "${alert_context.service}"
+      time_range: "1h"
+    next: collect_k8s_events
+
+  # 第二步: 收集 K8s 事件
+  - id: collect_k8s_events
+    type: tool_call
+    description: 收集 Kubernetes 事件
+    tool: query_k8s_events
+    tool_args:
+      namespace: "${alert_context.namespace || 'default'}"
+      pod: "${alert_context.pod || ''}"
+      time_range: "1h"
+    next: collect_topology
+
+  # 第三步: 收集服务拓扑
+  - id: collect_topology
+    type: tool_call
+    description: 收集服务依赖拓扑
+    tool: query_topology
+    tool_args:
+      service: "${alert_context.service}"
+      depth: 2
+    next: collect_alert_history
+
+  # 第四步: 收集历史告警
+  - id: collect_alert_history
+    type: tool_call
+    description: 收集历史告警记录
+    tool: query_alert_history
+    tool_args:
+      service: "${alert_context.service}"
+      time_range: "7d"
+    next: analyze_symptom
+
+  # 第五步: 生成现象描述
+  - id: analyze_symptom
+    type: report_section
+    description: 生成现象描述段落
+    section: symptom
+    next: analyze_root_cause
+
+  # 第六步: 根因分析
+  - id: analyze_root_cause
+    type: llm_analysis
+    description: 基于收集的事实进行根因分析
+    prompt_template: |
+      基于以下收集的事实，分析 CPU 使用率过高的根本原因：
+      
+      CPU 指标: ${collected_facts.collect_cpu_metrics}
+      K8s 事件: ${collected_facts.collect_k8s_events}
+      服务拓扑: ${collected_facts.collect_topology}
+      历史告警: ${collected_facts.collect_alert_history}
+      
+      请分析：
+      1. CPU 飙升的直接原因（是否有流量突增、死循环、GC 问题）
+      2. 是否与服务依赖相关
+      3. 是否有历史相似问题
+      4. 是否需要扩容或优化代码
+    next: analyze_impact
+
+  # 第七步: 影响范围分析
+  - id: analyze_impact
+    type: report_section
+    description: 生成影响范围段落
+    section: impact_scope
+    next: remediation_approval
+
+  # 第八步: 处置方案 - 需要人工审批
+  - id: remediation_approval
+    type: interrupt
+    description: 处置方案需要人工审批
+    message: "请审批处置方案：是否执行 Pod 扩容或重启？"
+    next: generate_remediation
+
+  # 第九步: 生成处置方案
+  - id: generate_remediation
+    type: report_section
+    description: 生成处置方案段落
+    section: remediation
+    next: generate_postmortem
+
+  # 第十步: 生成复盘建议
+  - id: generate_postmortem
+    type: report_section
+    description: 生成复盘建议段落
+    section: postmortem
+    next: __end__
+
+report_template:
+  title: "CPU 使用率过高诊断报告"
+  sections:
+    - symptom
+    - root_cause
+    - impact_scope
+    - remediation
+    - postmortem
+
+metadata:
+  owner: ops-team
+  tags:
+    - cpu
+    - performance
+    - warning
+  estimated_duration: "3-5分钟"

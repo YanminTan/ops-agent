@@ -1,0 +1,127 @@
+sop_id: db-connection-pool-exhausted
+name: 数据库连接池耗尽诊断
+description: 当数据库连接池耗尽时的标准诊断流程
+version: "1.0"
+
+trigger:
+  alert_rule: db_connection_pool_exhausted
+  severity: critical
+  conditions:
+    - metric: db_connections_active
+      operator: ">="
+      threshold: 95
+
+steps:
+  # 第一步: 收集数据库指标
+  - id: collect_db_metrics
+    type: tool_call
+    description: 收集数据库连接池指标
+    tool: query_db
+    tool_args:
+      query: "SELECT * FROM connection_pool_stats WHERE timestamp > now() - interval '1 hour'"
+      database: "${alert_context.service}_db"
+    next: collect_dev_changes
+
+  # 第二步: 查询最近的变更
+  - id: collect_dev_changes
+    type: tool_call
+    description: 查询最近24小时的变更记录
+    tool: query_dev_change
+    tool_args:
+      service: "${alert_context.service}"
+      time_range: "24h"
+    next: collect_error_logs
+
+  # 第三步: 收集错误日志
+  - id: collect_error_logs
+    type: tool_call
+    description: 收集相关错误日志
+    tool: query_sls
+    tool_args:
+      project: "${alert_context.service}"
+      logstore: "error"
+      query: "connection OR timeout OR pool"
+      time_range: "1h"
+    next: collect_metrics
+
+  # 第四步: 收集监控指标
+  - id: collect_metrics
+    type: tool_call
+    description: 收集相关监控指标
+    tool: query_metrics
+    tool_args:
+      metric: "db_connection_pool_usage"
+      service: "${alert_context.service}"
+      time_range: "1h"
+    next: analyze_symptom
+
+  # 第五步: 生成现象描述
+  - id: analyze_symptom
+    type: report_section
+    description: 生成现象描述段落
+    section: symptom
+    next: analyze_root_cause
+
+  # 第六步: 根因分析
+  - id: analyze_root_cause
+    type: llm_analysis
+    description: 基于收集的事实进行根因分析
+    prompt_template: |
+      基于以下收集的事实，分析数据库连接池耗尽的根本原因：
+      
+      数据库指标: ${collected_facts.collect_db_metrics}
+      最近变更: ${collected_facts.collect_dev_changes}
+      错误日志: ${collected_facts.collect_error_logs}
+      监控指标: ${collected_facts.collect_metrics}
+      
+      请分析：
+      1. 连接池耗尽的直接原因
+      2. 是否有慢查询或死锁
+      3. 是否与最近的变更相关
+      4. 是否存在连接泄漏
+    next: analyze_impact
+
+  # 第七步: 影响范围分析
+  - id: analyze_impact
+    type: report_section
+    description: 生成影响范围段落
+    section: impact_scope
+    next: remediation_approval
+
+  # 第八步: 处置方案 - 需要人工审批
+  - id: remediation_approval
+    type: interrupt
+    description: 处置方案需要人工审批
+    message: "请审批处置方案：是否执行数据库连接池扩容和重启服务？"
+    next: generate_remediation
+
+  # 第九步: 生成处置方案
+  - id: generate_remediation
+    type: report_section
+    description: 生成处置方案段落
+    section: remediation
+    next: generate_postmortem
+
+  # 第十步: 生成复盘建议
+  - id: generate_postmortem
+    type: report_section
+    description: 生成复盘建议段落
+    section: postmortem
+    next: __end__
+
+report_template:
+  title: "数据库连接池耗尽诊断报告"
+  sections:
+    - symptom
+    - root_cause
+    - impact_scope
+    - remediation
+    - postmortem
+
+metadata:
+  owner: ops-team
+  tags:
+    - database
+    - connection-pool
+    - critical
+  estimated_duration: "5-10分钟"
