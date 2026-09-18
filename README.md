@@ -20,25 +20,6 @@ cd ../frontend && npm install
 open http://localhost:9100
 ```
 
-### 一键测试三层路由
-
-```bash
-# SOP 路由：告警自动匹配诊断流程
-curl -X POST http://localhost:9100/api/diagnosis/start \
-  -H "Content-Type: application/json" \
-  -d '{"alert_context": {"message": "数据库连接池耗尽", "service": "order-service"}}'
-
-# Skill 路由：轻量动作直接执行
-curl -X POST http://localhost:9100/api/diagnosis/start \
-  -H "Content-Type: application/json" \
-  -d '{"alert_context": {"message": "服务健康检查", "service": "api-gateway"}}'
-
-# MCP 路由：单点工具直调
-curl -X POST http://localhost:9100/api/diagnosis/start \
-  -H "Content-Type: application/json" \
-  -d '{"route": "mcp", "sop_id": "query_metrics", "alert_context": {"service": "order-service"}}'
-```
-
 ## 🏗️ 架构
 
 ```
