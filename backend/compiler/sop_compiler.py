@@ -9,62 +9,37 @@ from __future__ import annotations
 
 import json
 import operator
-from typing import Any, Annotated, Literal
+from typing import Any, Annotated, Literal, TypedDict
 from dataclasses import dataclass, field
 
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
-from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
-from langgraph.prebuilt import ToolNode
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
-from langchain_core.tools import tool as tool_decorator
 
 from schemas.sop_schema import SOPDef, StepDef, StepType, REPORT_SECTIONS
 
 
 # ─────────────────────────────────────────────
-# State 定义
+# State 定义 (TypedDict)
 # ─────────────────────────────────────────────
 
-@dataclass
-class DiagnosisState:
+class DiagnosisState(TypedDict):
     """诊断流程的全局状态"""
-    messages: Annotated[list[BaseMessage], add_messages]
-    sop_id: str = ""
-    alert_context: dict[str, Any] = field(default_factory=dict)
-    collected_facts: dict[str, Any] = field(default_factory=dict)
-    current_step: str = ""
-    step_results: dict[str, Any] = field(default_factory=dict)
-    report_sections: dict[str, str] = field(default_factory=dict)
-    final_report: str = ""
-    pending_interrupt: dict[str, Any] | None = None
-    error: str | None = None
-    execution_log: list[dict[str, Any]] = field(default_factory=list)
-    iteration: int = 0
+    messages: Annotated[list, add_messages]
+    sop_id: str
+    alert_context: dict[str, Any]
+    collected_facts: dict[str, Any]
+    current_step: str
+    step_results: dict[str, Any]
+    report_sections: dict[str, str]
+    final_report: str
+    pending_interrupt: dict[str, Any] | None
+    error: str | None
+    execution_log: list[dict[str, Any]]
+    iteration: int
 
 
-def state_to_dict(state: DiagnosisState) -> dict:
-    return {
-        "messages": state.messages,
-        "sop_id": state.sop_id,
-        "alert_context": state.alert_context,
-        "collected_facts": state.collected_facts,
-        "current_step": state.current_step,
-        "step_results": state.step_results,
-        "report_sections": state.report_sections,
-        "final_report": state.final_report,
-        "pending_interrupt": state.pending_interrupt,
-        "error": state.error,
-        "execution_log": state.execution_log,
-        "iteration": state.iteration,
-    }
-
-
-def dict_to_state(d: dict) -> DiagnosisState:
-    return DiagnosisState(**{k: v for k, v in d.items() if k in DiagnosisState.__dataclass_fields__})
-
-
-# ─────────────────────────────────────────────
+# ────────────────────────────────────────────
 # Compiler
 # ─────────────────────────────────────────────
 
@@ -85,22 +60,7 @@ class SOPCompiler:
 
     def compile(self, sop: SOPDef) -> StateGraph:
         """编译 SOP 为 StateGraph"""
-        schema = {
-            "messages": None,
-            "sop_id": None,
-            "alert_context": None,
-            "collected_facts": None,
-            "current_step": None,
-            "step_results": None,
-            "report_sections": None,
-            "final_report": None,
-            "pending_interrupt": None,
-            "error": None,
-            "execution_log": None,
-            "iteration": None,
-        }
-
-        builder = StateGraph(schema)
+        builder = StateGraph(DiagnosisState)
 
         # 构建步骤索引
         step_map: dict[str, StepDef] = {s.id: s for s in sop.steps}
@@ -143,7 +103,7 @@ class SOPCompiler:
         tool_name = step.tool
         tool_args_template = step.tool_args
 
-        async def tool_node(state: dict) -> dict:
+        async def tool_node(state: DiagnosisState) -> dict:
             log_entry = {
                 "step_id": step.id,
                 "type": "tool_call",
@@ -181,7 +141,7 @@ class SOPCompiler:
         """构建 LLM 分析节点"""
         prompt_template = step.prompt_template or step.prompt or ""
 
-        async def llm_node(state: dict) -> dict:
+        async def llm_node(state: DiagnosisState) -> dict:
             log_entry = {
                 "step_id": step.id,
                 "type": "llm_analysis",
@@ -218,7 +178,7 @@ class SOPCompiler:
     def _build_branch_node(self, step: StepDef, step_map: dict) -> callable:
         """构建条件分支节点"""
 
-        async def branch_node(state: dict) -> dict:
+        async def branch_node(state: DiagnosisState) -> dict:
             condition = step.condition or ""
             result = self._evaluate_condition(condition, state)
 
@@ -235,7 +195,7 @@ class SOPCompiler:
     def _build_interrupt_node(self, step: StepDef) -> callable:
         """构建人工审批 interrupt 节点（写路径闸门）"""
 
-        async def interrupt_node(state: dict) -> dict:
+        async def interrupt_node(state: DiagnosisState) -> dict:
             # 设置 pending_interrupt，触发 langgraph interrupt
             interrupt_payload = {
                 "step_id": step.id,
@@ -260,7 +220,7 @@ class SOPCompiler:
         """构建报告段落生成节点"""
         section_key = step.section or "symptom"
 
-        async def report_node(state: dict) -> dict:
+        async def report_node(state: DiagnosisState) -> dict:
             # 从 collected_facts 和 step_results 生成报告段落
             section_content = self._generate_section_content(section_key, state, sop)
 
@@ -285,7 +245,7 @@ class SOPCompiler:
     def _build_parallel_node(self, step: StepDef, step_map: dict) -> callable:
         """构建并行执行节点"""
 
-        async def parallel_node(state: dict) -> dict:
+        async def parallel_node(state: DiagnosisState) -> dict:
             # 并行步骤在编译时已经展开为独立节点
             # 这里只做聚合
             results = {}
@@ -308,7 +268,7 @@ class SOPCompiler:
 
         if step.type == StepType.BRANCH:
             # 条件分支: 根据 branch_result 路由到不同节点
-            def route_fn(state: dict) -> str:
+            def route_fn(state: DiagnosisState) -> str:
                 branch_result = state.get("step_results", {}).get(step.id, {}).get("branch_result", "")
                 for branch in step.branches:
                     if branch.get("value") == branch_result:
@@ -321,7 +281,7 @@ class SOPCompiler:
         if step.type == StepType.INTERRUPT:
             # interrupt 后需要等待审批，审批通过后继续
             # 用条件边实现：如果有 pending_interrupt 则等待，否则继续
-            def interrupt_route(state: dict) -> str:
+            def interrupt_route(state: DiagnosisState) -> str:
                 if state.get("pending_interrupt") and state["pending_interrupt"].get("step_id") == step.id:
                     return "__interrupt__"
                 return step.next or END
