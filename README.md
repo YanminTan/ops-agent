@@ -2,6 +2,10 @@
 
 > **生产级运维 Agent 的最小可运行 Demo** — 基于 LangGraph 的声明式 SOP 编排 + 三层路由架构
 
+## 🖥️ 界面预览
+
+![运维诊断系统](screenshot.png)
+
 ## 🚀 快速体验
 
 ```bash
