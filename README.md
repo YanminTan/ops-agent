@@ -2,9 +2,9 @@
 
 > **生产级运维 Agent 的最小可运行 Demo** — 基于 LangGraph 的声明式 SOP 编排 + 三层路由架构
 
-## 🎯 [在线演示](https://yanmintan.github.io/ops-agent/)
+## 🎯 [在线演示](https://htmlpreview.github.io/?https://github.com/YanminTan/ops-agent/blob/master/index.html)
 
-点击链接查看完整系统演示，包含三层路由、执行流程、诊断报告等。
+点击链接直接查看完整系统演示，包含三层路由、执行流程、诊断报告。无需安装，浏览器打开即用。
 
 ## 🚀 快速体验
 
