@@ -181,47 +181,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 <!-- PAGE 1: 告警分析 -->
 <!-- ═══════════════════════════════════════════ -->
 <div id="page-alert" class="page visible">
-<div class="layout">
-  <aside class="sidebar">
-    <div class="sidebar-title">🎯 三层路由</div>
-    <div class="route-card route-sop active">
-      <div class="route-type">SOP · 多步编排</div>
-      <div class="route-name">数据库连接池耗尽诊断</div>
-      <div class="route-desc">YAML → LangGraph StateGraph，10 步确定性流程，含人工审批闸门</div>
-    </div>
-    <div class="route-card route-sop">
-      <div class="route-type">SOP · 多步编排</div>
-      <div class="route-name">CPU 使用率过高诊断</div>
-      <div class="route-desc">采集指标 → 分析变更 → 拓扑排查 → 生成报告</div>
-    </div>
-    <div class="route-card route-skill">
-      <div class="route-type">Skill · 轻量动作</div>
-      <div class="route-name">服务健康检查</div>
-      <div class="route-desc">单函数执行，检查 CPU / 内存 / 磁盘 / 网络</div>
-    </div>
-    <div class="route-card route-skill">
-      <div class="route-type">Skill · 轻量动作</div>
-      <div class="route-name">最近变更查询</div>
-      <div class="route-desc">查询 24h 内配置变更和发布记录</div>
-    </div>
-    <div class="route-card route-mcp">
-      <div class="route-type">MCP · 单点直调</div>
-      <div class="route-name">query_metrics</div>
-      <div class="route-desc">查询监控指标数据</div>
-    </div>
-    <div class="route-card route-mcp">
-      <div class="route-type">MCP · 单点直调</div>
-      <div class="route-name">query_sls</div>
-      <div class="route-desc">查询日志服务</div>
-    </div>
-    <div class="route-card route-mcp">
-      <div class="route-type">MCP · 单点直调</div>
-      <div class="route-name">query_topology</div>
-      <div class="route-desc">查询服务拓扑依赖</div>
-    </div>
-  </aside>
-
-  <main class="main">
+<div class="layout" style="display:block">
+  <main class="main" style="max-width:1100px;margin:0 auto">
     <div class="page-title animate-in">告警诊断</div>
     <div class="page-subtitle animate-in delay-1">意图分类 → 路由分发 → 执行诊断 → 生成报告</div>
 
