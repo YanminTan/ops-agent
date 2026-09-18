@@ -28,7 +28,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 .logo { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
 .logo span { background: linear-gradient(135deg, var(--accent), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .nav { display: flex; gap: 4px; margin-left: 40px; }
-.nav a { padding: 8px 16px; border-radius: 8px; color: var(--text2); text-decoration: none; font-size: 14px; font-weight: 500; transition: all .2s; }
+.nav a { padding: 8px 16px; border-radius: 8px; color: var(--text2); text-decoration: none; font-size: 14px; font-weight: 500; transition: all .2s; cursor: pointer; }
 .nav a:hover { color: var(--text); background: var(--surface2); }
 .nav a.active { color: var(--accent2); background: rgba(99,102,241,.12); }
 .header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
@@ -70,7 +70,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 .form-label { font-size: 12px; font-weight: 600; color: var(--text2); }
 .form-input { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-size: 14px; outline: none; transition: border .2s; }
 .form-input:focus { border-color: var(--accent); }
-.form-input::placeholder { color: #555; }
 
 /* Buttons */
 .btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; gap: 8px; }
@@ -78,6 +77,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
 .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text2); }
 .btn-outline:hover { border-color: var(--text2); color: var(--text); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
 .btn-group { display: flex; gap: 8px; margin-top: 16px; }
 
 /* Execution flow */
@@ -93,7 +93,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 .flow-content { flex: 1; padding-bottom: 20px; }
 .flow-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
 .flow-desc { font-size: 13px; color: var(--text2); }
-.flow-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-top: 4px; }
+.flow-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-top: 4px; margin-right: 4px; }
 .tag-sop { background: rgba(99,102,241,.15); color: var(--accent2); }
 .tag-skill { background: rgba(6,182,212,.15); color: var(--cyan); }
 .tag-mcp { background: rgba(234,179,8,.15); color: var(--yellow); }
@@ -118,6 +118,38 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 .stat-value.accent { color: var(--accent2); }
 .stat-label { font-size: 12px; color: var(--text2); margin-top: 4px; }
 
+/* History table */
+.history-table { width: 100%; border-collapse: collapse; }
+.history-table th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--border); }
+.history-table td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid var(--border); }
+.history-table tr:hover td { background: var(--surface2); }
+.route-badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.route-badge.sop { background: rgba(99,102,241,.15); color: var(--accent2); }
+.route-badge.skill { background: rgba(6,182,212,.15); color: var(--cyan); }
+.route-badge.mcp { background: rgba(234,179,8,.15); color: var(--yellow); }
+.status-badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.status-badge.completed { background: rgba(34,197,94,.15); color: var(--green); }
+.status-badge.waiting { background: rgba(234,179,8,.15); color: var(--yellow); }
+.status-badge.error { background: rgba(239,68,68,.15); color: var(--red); }
+.link-btn { color: var(--accent2); text-decoration: none; font-weight: 500; cursor: pointer; }
+.link-btn:hover { text-decoration: underline; }
+
+/* Replay timeline */
+.replay-timeline { position: relative; padding-left: 40px; }
+.replay-timeline::before { content: ''; position: absolute; left: 15px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+.timeline-item { position: relative; margin-bottom: 20px; }
+.timeline-dot { position: absolute; left: -33px; top: 4px; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; z-index: 1; }
+.timeline-dot.active { background: var(--accent); color: white; }
+.timeline-dot.normal { background: var(--surface2); border: 2px solid var(--border); color: var(--text2); }
+.timeline-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+.timeline-card.active-card { border-color: var(--accent); }
+.timeline-time { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+.timeline-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.timeline-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.timeline-state { margin-top: 10px; padding: 10px; background: var(--bg); border-radius: 6px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; color: var(--text2); line-height: 1.6; overflow-x: auto; }
+.replay-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+.replay-controls .step-info { font-size: 14px; font-weight: 600; flex: 1; text-align: center; }
+
 /* Animations */
 @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .animate-in { animation: slideIn .4s ease-out forwards; }
@@ -125,7 +157,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 .delay-2 { animation-delay: .2s; opacity: 0; }
 .delay-3 { animation-delay: .3s; opacity: 0; }
 .delay-4 { animation-delay: .4s; opacity: 0; }
-.delay-5 { animation-delay: .5s; opacity: 0; }
+
+/* Page visibility */
+.page { display: none; }
+.page.visible { display: block; }
 </style>
 </head>
 <body>
@@ -133,56 +168,52 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 <header class="header">
   <div class="logo">🔧 <span>Ops Agent</span></div>
   <nav class="nav">
-    <a href="#" class="active">告警分析</a>
-    <a href="#">历史浏览</a>
-    <a href="#">逐帧回放</a>
+    <a class="active" onclick="showPage('alert')">告警分析</a>
+    <a onclick="showPage('history')">历史浏览</a>
+    <a onclick="showPage('replay')">逐帧回放</a>
   </nav>
   <div class="header-right">
     <span class="badge badge-green">● 系统正常</span>
   </div>
 </header>
 
+<!-- ═══════════════════════════════════════════ -->
+<!-- PAGE 1: 告警分析 -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="page-alert" class="page visible">
 <div class="layout">
-  <!-- Sidebar: 三层路由 -->
   <aside class="sidebar">
     <div class="sidebar-title">🎯 三层路由</div>
-
     <div class="route-card route-sop active">
       <div class="route-type">SOP · 多步编排</div>
       <div class="route-name">数据库连接池耗尽诊断</div>
       <div class="route-desc">YAML → LangGraph StateGraph，10 步确定性流程，含人工审批闸门</div>
     </div>
-
     <div class="route-card route-sop">
       <div class="route-type">SOP · 多步编排</div>
       <div class="route-name">CPU 使用率过高诊断</div>
       <div class="route-desc">采集指标 → 分析变更 → 拓扑排查 → 生成报告</div>
     </div>
-
     <div class="route-card route-skill">
       <div class="route-type">Skill · 轻量动作</div>
       <div class="route-name">服务健康检查</div>
       <div class="route-desc">单函数执行，检查 CPU / 内存 / 磁盘 / 网络</div>
     </div>
-
     <div class="route-card route-skill">
       <div class="route-type">Skill · 轻量动作</div>
       <div class="route-name">最近变更查询</div>
       <div class="route-desc">查询 24h 内配置变更和发布记录</div>
     </div>
-
     <div class="route-card route-mcp">
       <div class="route-type">MCP · 单点直调</div>
       <div class="route-name">query_metrics</div>
       <div class="route-desc">查询监控指标数据</div>
     </div>
-
     <div class="route-card route-mcp">
       <div class="route-type">MCP · 单点直调</div>
       <div class="route-name">query_sls</div>
       <div class="route-desc">查询日志服务</div>
     </div>
-
     <div class="route-card route-mcp">
       <div class="route-type">MCP · 单点直调</div>
       <div class="route-name">query_topology</div>
@@ -190,61 +221,28 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
     </div>
   </aside>
 
-  <!-- Main -->
   <main class="main">
     <div class="page-title animate-in">告警诊断</div>
     <div class="page-subtitle animate-in delay-1">意图分类 → 路由分发 → 执行诊断 → 生成报告</div>
 
-    <!-- Stats -->
     <div class="stats animate-in delay-1">
-      <div class="stat-card">
-        <div class="stat-value accent">7</div>
-        <div class="stat-label">MCP 工具</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value blue">4</div>
-        <div class="stat-label">内置 Skill</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value yellow">2</div>
-        <div class="stat-label">SOP 流程</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value green">3</div>
-        <div class="stat-label">路由路径</div>
-      </div>
+      <div class="stat-card"><div class="stat-value accent">7</div><div class="stat-label">MCP 工具</div></div>
+      <div class="stat-card"><div class="stat-value blue">4</div><div class="stat-label">内置 Skill</div></div>
+      <div class="stat-card"><div class="stat-value yellow">2</div><div class="stat-label">SOP 流程</div></div>
+      <div class="stat-card"><div class="stat-value green">3</div><div class="stat-label">路由路径</div></div>
     </div>
 
-    <!-- Alert Input -->
     <div class="triage-panel animate-in delay-2">
       <div class="triage-header">
         <div class="triage-icon" style="background:rgba(99,102,241,.12)">🚨</div>
-        <div>
-          <h3>告警输入 & 意图分类</h3>
-          <p>输入告警信息，系统自动 triage 路由到 SOP / Skill / MCP</p>
-        </div>
+        <div><h3>告警输入 & 意图分类</h3><p>输入告警信息，系统自动 triage 路由到 SOP / Skill / MCP</p></div>
       </div>
       <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">告警来源</label>
-          <input class="form-input" value="Prometheus" readonly>
-        </div>
-        <div class="form-group">
-          <label class="form-label">告警级别</label>
-          <input class="form-input" value="Critical 🔴" readonly>
-        </div>
-        <div class="form-group">
-          <label class="form-label">影响服务</label>
-          <input class="form-input" value="order-service" readonly>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Triage 结果</label>
-          <input class="form-input" value="→ SOP: db-connection-pool-exhausted (置信度 0.95)" readonly style="color: var(--accent2);">
-        </div>
-        <div class="form-group full">
-          <label class="form-label">告警消息</label>
-          <input class="form-input" value="数据库连接池耗尽，活跃连接数达到上限 95%，服务 order-service 响应超时" readonly>
-        </div>
+        <div class="form-group"><label class="form-label">告警来源</label><input class="form-input" value="Prometheus" readonly></div>
+        <div class="form-group"><label class="form-label">告警级别</label><input class="form-input" value="Critical 🔴" readonly></div>
+        <div class="form-group"><label class="form-label">影响服务</label><input class="form-input" value="order-service" readonly></div>
+        <div class="form-group"><label class="form-label">Triage 结果</label><input class="form-input" value="→ SOP: db-connection-pool-exhausted (置信度 0.95)" readonly style="color: var(--accent2);"></div>
+        <div class="form-group full"><label class="form-label">告警消息</label><input class="form-input" value="数据库连接池耗尽，活跃连接数达到上限 95%，服务 order-service 响应超时" readonly></div>
       </div>
       <div class="btn-group">
         <button class="btn btn-primary">▶ 开始诊断</button>
@@ -252,70 +250,54 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
       </div>
     </div>
 
-    <!-- Execution Flow -->
     <div class="triage-panel animate-in delay-3">
       <div class="triage-header">
         <div class="triage-icon" style="background:rgba(34,197,94,.12)">⚡</div>
-        <div>
-          <h3>执行流程 · SOP 路径</h3>
-          <p>YAML 编译为 LangGraph StateGraph，确定性代码节点逐步执行</p>
-        </div>
+        <div><h3>执行流程 · SOP 路径</h3><p>YAML 编译为 LangGraph StateGraph，确定性代码节点逐步执行</p></div>
       </div>
-
       <div class="flow">
         <div class="flow-step">
-          <div class="flow-dot done">✓</div>
-          <div class="flow-line"></div>
+          <div class="flow-dot done">✓</div><div class="flow-line"></div>
           <div class="flow-content">
             <div class="flow-title">Triage 意图分类</div>
             <div class="flow-desc">规则匹配 → SOP: db-connection-pool-exhausted</div>
-            <span class="flow-tag tag-sop">SOP Route</span>
-            <span class="flow-tag tag-time">12ms</span>
+            <span class="flow-tag tag-sop">SOP Route</span><span class="flow-tag tag-time">12ms</span>
           </div>
         </div>
         <div class="flow-step">
-          <div class="flow-dot done">✓</div>
-          <div class="flow-line"></div>
+          <div class="flow-dot done">✓</div><div class="flow-line"></div>
           <div class="flow-content">
             <div class="flow-title">collect_db_metrics</div>
             <div class="flow-desc">query_db → 查询连接池指标，活跃连接 95/100，等待队列 23</div>
-            <span class="flow-tag tag-tool">MCP: query_db</span>
-            <span class="flow-tag tag-time">340ms</span>
+            <span class="flow-tag tag-tool">MCP: query_db</span><span class="flow-tag tag-time">340ms</span>
           </div>
         </div>
         <div class="flow-step">
-          <div class="flow-dot done">✓</div>
-          <div class="flow-line"></div>
+          <div class="flow-dot done">✓</div><div class="flow-line"></div>
           <div class="flow-content">
             <div class="flow-title">collect_dev_changes</div>
             <div class="flow-desc">query_dev_change → 24h 内 2 次变更：配置修改 + 版本发布</div>
-            <span class="flow-tag tag-tool">MCP: query_dev_change</span>
-            <span class="flow-tag tag-time">280ms</span>
+            <span class="flow-tag tag-tool">MCP: query_dev_change</span><span class="flow-tag tag-time">280ms</span>
           </div>
         </div>
         <div class="flow-step">
-          <div class="flow-dot done">✓</div>
-          <div class="flow-line"></div>
+          <div class="flow-dot done">✓</div><div class="flow-line"></div>
           <div class="flow-content">
             <div class="flow-title">collect_error_logs</div>
             <div class="flow-desc">query_sls → 156 条 ERROR，Connection timeout to mysql:3306</div>
-            <span class="flow-tag tag-tool">MCP: query_sls</span>
-            <span class="flow-tag tag-time">520ms</span>
+            <span class="flow-tag tag-tool">MCP: query_sls</span><span class="flow-tag tag-time">520ms</span>
           </div>
         </div>
         <div class="flow-step">
-          <div class="flow-dot done">✓</div>
-          <div class="flow-line"></div>
+          <div class="flow-dot done">✓</div><div class="flow-line"></div>
           <div class="flow-content">
             <div class="flow-title">analyze_root_cause</div>
             <div class="flow-desc">LLM 分析 → 根因：连接池 max_active 配置过低 + 慢查询导致连接占用</div>
-            <span class="flow-tag tag-sop">LLM Analysis</span>
-            <span class="flow-tag tag-time">1.2s</span>
+            <span class="flow-tag tag-sop">LLM Analysis</span><span class="flow-tag tag-time">1.2s</span>
           </div>
         </div>
         <div class="flow-step">
-          <div class="flow-dot running">⏸</div>
-          <div class="flow-line"></div>
+          <div class="flow-dot running">⏸</div><div class="flow-line"></div>
           <div class="flow-content">
             <div class="flow-title">approval_remediation</div>
             <div class="flow-desc">⚠️ 等待人工审批：是否执行连接池扩容 (max_active: 100 → 200)？</div>
@@ -333,7 +315,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
       </div>
     </div>
 
-    <!-- Report Preview -->
     <div class="report animate-in delay-4">
       <h3>📋 五段式诊断报告</h3>
       <div class="report-section">
@@ -365,9 +346,231 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
         </ul>
       </div>
     </div>
-
   </main>
 </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PAGE 2: 历史浏览 -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="page-history" class="page">
+<div style="max-width:1100px;margin:0 auto;">
+  <div class="page-title">历史诊断记录</div>
+  <div class="page-subtitle">查看所有诊断 thread，支持按路由类型、状态筛选，点击可跳转逐帧回放</div>
+
+  <div class="stats">
+    <div class="stat-card"><div class="stat-value accent">23</div><div class="stat-label">总诊断次数</div></div>
+    <div class="stat-card"><div class="stat-value green">18</div><div class="stat-label">已完成</div></div>
+    <div class="stat-card"><div class="stat-value yellow">3</div><div class="stat-label">等待审批</div></div>
+    <div class="stat-card"><div class="stat-value" style="color:var(--red)">2</div><div class="stat-label">异常</div></div>
+  </div>
+
+  <div class="triage-panel">
+    <div class="triage-header">
+      <div class="triage-icon" style="background:rgba(59,130,246,.12)">📋</div>
+      <div><h3>诊断记录列表</h3><p>点击「回放」查看逐帧执行详情</p></div>
+    </div>
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>Thread ID</th>
+          <th>路由</th>
+          <th>目标</th>
+          <th>告警摘要</th>
+          <th>状态</th>
+          <th>耗时</th>
+          <th>时间</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-family:monospace;font-size:12px;color:var(--text2)">28ae12c6</td>
+          <td><span class="route-badge sop">SOP</span></td>
+          <td>high-cpu-usage</td>
+          <td>CPU 使用率 95.7%，order-service</td>
+          <td><span class="status-badge waiting">等待审批</span></td>
+          <td>12.3s</td>
+          <td style="color:var(--text2)">09:10:28</td>
+          <td><a class="link-btn" onclick="showPage('replay')">回放 →</a></td>
+        </tr>
+        <tr>
+          <td style="font-family:monospace;font-size:12px;color:var(--text2)">1900c669</td>
+          <td><span class="route-badge skill">Skill</span></td>
+          <td>check_service_health</td>
+          <td>服务健康检查，api-gateway</td>
+          <td><span class="status-badge completed">已完成</span></td>
+          <td>0.8s</td>
+          <td style="color:var(--text2)">09:10:37</td>
+          <td><a class="link-btn" onclick="showPage('replay')">回放 →</a></td>
+        </tr>
+        <tr>
+          <td style="font-family:monospace;font-size:12px;color:var(--text2)">11e664a4</td>
+          <td><span class="route-badge mcp">MCP</span></td>
+          <td>query_metrics</td>
+          <td>查询 CPU 指标，order-service</td>
+          <td><span class="status-badge completed">已完成</span></td>
+          <td>0.3s</td>
+          <td style="color:var(--text2)">09:10:37</td>
+          <td><a class="link-btn" onclick="showPage('replay')">回放 →</a></td>
+        </tr>
+        <tr>
+          <td style="font-family:monospace;font-size:12px;color:var(--text2)">a3f8b201</td>
+          <td><span class="route-badge sop">SOP</span></td>
+          <td>db-connection-pool</td>
+          <td>连接池耗尽，payment-service</td>
+          <td><span class="status-badge completed">已完成</span></td>
+          <td>18.7s</td>
+          <td style="color:var(--text2)">08:45:12</td>
+          <td><a class="link-btn" onclick="showPage('replay')">回放 →</a></td>
+        </tr>
+        <tr>
+          <td style="font-family:monospace;font-size:12px;color:var(--text2)">c7d4e502</td>
+          <td><span class="route-badge skill">Skill</span></td>
+          <td>check_recent_changes</td>
+          <td>查询变更，order-service</td>
+          <td><span class="status-badge completed">已完成</span></td>
+          <td>0.5s</td>
+          <td style="color:var(--text2)">08:30:00</td>
+          <td><a class="link-btn" onclick="showPage('replay')">回放 →</a></td>
+        </tr>
+        <tr>
+          <td style="font-family:monospace;font-size:12px;color:var(--text2)">e9f1a303</td>
+          <td><span class="route-badge sop">SOP</span></td>
+          <td>high-cpu-usage</td>
+          <td>CPU 过高，api-gateway</td>
+          <td><span class="status-badge error">异常</span></td>
+          <td>3.2s</td>
+          <td style="color:var(--text2)">08:15:44</td>
+          <td><a class="link-btn" onclick="showPage('replay')">回放 →</a></td>
+        </tr>
+        <tr>
+          <td style="font-family:monospace;font-size:12px;color:var(--text2)">b2c3d404</td>
+          <td><span class="route-badge mcp">MCP</span></td>
+          <td>query_sls</td>
+          <td>查询错误日志，order-service</td>
+          <td><span class="status-badge completed">已完成</span></td>
+          <td>0.6s</td>
+          <td style="color:var(--text2)">07:50:22</td>
+          <td><a class="link-btn" onclick="showPage('replay')">回放 →</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PAGE 3: 逐帧回放 -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="page-replay" class="page">
+<div style="max-width:900px;margin:0 auto;">
+  <div class="page-title">逐帧回放</div>
+  <div class="page-subtitle">Thread: 28ae12c6-b675-4002-a327-ae39b590fa99 · SOP: high-cpu-usage · 2026-09-18 09:10:28</div>
+
+  <div class="replay-controls">
+    <button class="btn btn-outline btn-sm">⏮ 上一步</button>
+    <button class="btn btn-outline btn-sm">⏭ 下一步</button>
+    <div class="step-info">Checkpoint 4 / 7 · analyze_root_cause</div>
+    <button class="btn btn-outline btn-sm">⏩ 自动播放</button>
+  </div>
+
+  <div class="triage-panel">
+    <div class="triage-header">
+      <div class="triage-icon" style="background:rgba(99,102,241,.12)">🔍</div>
+      <div><h3>执行时间线</h3><p>每个 checkpoint 的完整状态快照，支持前进/后退导航</p></div>
+    </div>
+
+    <div class="replay-timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot normal">1</div>
+        <div class="timeline-card">
+          <div class="timeline-time">09:10:28.420 · checkpoint_0</div>
+          <div class="timeline-title">Triage 意图分类</div>
+          <div class="timeline-desc">告警消息 "CPU 使用率过高" → 诊断场景检测 → 模糊匹配 SOP: high-cpu-usage</div>
+          <div class="timeline-state">
+{ "route": "sop", "target": "high-cpu-usage", "confidence": 0.8, "reason": "诊断场景，匹配到 SOP" }
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot normal">2</div>
+        <div class="timeline-card">
+          <div class="timeline-time">09:10:28.760 · checkpoint_1 · 耗时 340ms</div>
+          <div class="timeline-title">collect_cpu_metrics <span class="flow-tag tag-tool">MCP: query_metrics</span></div>
+          <div class="timeline-desc">采集 CPU 指标：当前 95.7%，P99 94.2%，趋势 rising</div>
+          <div class="timeline-state">
+{ "tool": "query_metrics", "metric": "cpu_usage_percent",
+  "summary": { "avg": 72.8, "max": 95.7, "p99": 94.2, "trend": "rising" },
+  "data_points": [ ... 5 items ] }
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot normal">3</div>
+        <div class="timeline-card">
+          <div class="timeline-time">09:10:29.040 · checkpoint_2 · 耗时 280ms</div>
+          <div class="timeline-title">collect_dev_changes <span class="flow-tag tag-tool">MCP: query_dev_change</span></div>
+          <div class="timeline-desc">24h 内 2 次变更：部署 v2.3.1→v2.3.2 + 配置修改 rate_limit: 1000→2000</div>
+          <div class="timeline-state">
+{ "tool": "query_dev_change", "total": 2,
+  "changes": [
+    { "type": "deployment", "version": "v2.3.1 -> v2.3.2", "time": "08:30:00Z" },
+    { "type": "config_change", "detail": "rate_limit: 1000 -> 2000", "time": "09:15:00Z" }
+  ] }
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot active">4</div>
+        <div class="timeline-card active-card">
+          <div class="timeline-time">09:10:30.240 · checkpoint_3 · 耗时 1.2s · <strong style="color:var(--accent2)">← 当前帧</strong></div>
+          <div class="timeline-title">analyze_root_cause <span class="flow-tag tag-sop">LLM Analysis</span></div>
+          <div class="timeline-desc">LLM 基于 3 个事实分析根因：CPU 持续攀升 + 新版本发布 → 定位到 v2.3.2 引入的计算密集型逻辑</div>
+          <div class="timeline-state">
+{ "prompt": "基于以下事实分析根因：\n  事实1: CPU 95.7%, trend=rising\n  事实2: 部署 v2.3.2 at 08:30\n  事实3: rate_limit 1000→2000",
+  "analysis": "根因：v2.3.2 引入计算密集型逻辑，CPU 从 45% 飙升至 95.7%",
+  "confidence": 0.88 }
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot normal">5</div>
+        <div class="timeline-card">
+          <div class="timeline-time">pending · checkpoint_4</div>
+          <div class="timeline-title">approval_remediation <span class="flow-tag tag-sop">Interrupt · 人工闸门</span></div>
+          <div class="timeline-desc">⏸ 等待人工审批：是否回滚 order-service 至 v2.3.1？</div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot normal">6</div>
+        <div class="timeline-card">
+          <div class="timeline-time">pending · checkpoint_5</div>
+          <div class="timeline-title">generate_report <span class="flow-tag tag-sop">Report Section</span></div>
+          <div class="timeline-desc">生成五段式诊断报告</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('visible'));
+  document.querySelectorAll('.nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('visible');
+  const labels = { alert: '告警分析', history: '历史浏览', replay: '逐帧回放' };
+  document.querySelectorAll('.nav a').forEach(a => {
+    if (a.textContent === labels[page]) a.classList.add('active');
+  });
+}
+</script>
 
 </body>
 </html>
