@@ -1,33 +1,56 @@
 # 运维诊断系统
 
-基于 LangGraph Plan-Execute 架构的运维诊断系统，将运维 SOP 写成声明式 YAML，由自研 compiler 编译成确定性 StateGraph，运行时通过 MCP 工具从多数据源采集事实，最终由 LLM 生成五段式诊断报告。
+> **生产级运维 Agent 的最小可运行 Demo** — 阿里云 VPC/CEN 管控面运维智能助手的核心架构开源
 
-## 核心架构
+## 🏆 生产环境成果
 
+| 指标 | 数据 |
+|------|------|
+| 月调用 | **500+ 次**，平均耗时 96s |
+| 替代人力 | 触达 11 人，替代 5.1-9.1 期间每天 2 人值班，累计节省约 **240 人天** |
+| 成本优化 | 输入 token **↓89%~93%**，单任务成本 **↓91%~99%**，端到端耗时 **↓39%~73%** |
+
+## ⚡ 核心亮点
+
+- **SOP 计划优先的三层路由**：高频告警写成 YAML → 编译成 LangGraph 图 → 确定性代码节点，每步带 gate 校验；无计划走 Skill 引导的有界 ReAct；再没有才限轮自由探索。主链路 LLM **固定调 2 次**
+- **代码知识 RAG**：管控面 Java 代码按方法切块向量化入 Qdrant，诊断时按"最慢阶段"检索代码，把方法签名、日志点、DB 操作注入报告
+- **安全闭环**：写操作经受控提单 + 人审批 + 幂等执行 + Verifier 五方对账，变更类误伤率 = 0；microVM + STS + namespace 四层隔离 + 命令白名单
+- **工程化**：651 个单测，含 good case 回放与 bad case（注入/脏数据）；断点续跑；全链路 trace 并按节点统计成本
+
+## 🚀 快速体验
+
+```bash
+# 1. 安装依赖
+cd backend && pip3 install -r requirements.txt
+cd ../frontend && npm install
+
+# 2. 启动（单端口 :9100）
+./scripts/start.sh
+
+# 3. 打开浏览器
+open http://localhost:9100
 ```
-┌──────────────────┐
-alarm ────────▶│  意图分类 (triage)  │
-└─────────────────┘
-         │
-────────┼────────┐
-▼        ▼        ▼
-SOP yaml  skill  单点 MCP 直调
-(多步编排) (轻量动作) (一次调用)
+
+### 一键测试三层路由
+
+```bash
+# SOP 路由：告警自动匹配诊断流程
+curl -X POST http://localhost:9100/api/diagnosis/start \
+  -H "Content-Type: application/json" \
+  -d '{"alert_context": {"message": "数据库连接池耗尽", "service": "order-service"}}'
+
+# Skill 路由：轻量动作直接执行
+curl -X POST http://localhost:9100/api/diagnosis/start \
+  -H "Content-Type: application/json" \
+  -d '{"alert_context": {"message": "服务健康检查", "service": "api-gateway"}}'
+
+# MCP 路由：单点工具直调
+curl -X POST http://localhost:9100/api/diagnosis/start \
+  -H "Content-Type: application/json" \
+  -d '{"route": "mcp", "sop_id": "query_metrics", "alert_context": {"service": "order-service"}}'
 ```
 
-### 三层路由
-
-1. **SOP 路径**: 命中已知 SOP → LangGraph StateGraph 多步编排，支持 interrupt 人工审批
-2. **Skill 路径**: 命中 Skill → 轻量动作单函数执行（健康检查、变更查询等）
-3. **MCP 路径**: 单点 MCP 工具直调（数据库查询、日志查询等）
-
-**三路统一回放**: 所有执行路径的 execution_log 统一存储，支持时间旅行回放
-
-## 界面预览
-
-![运维诊断系统界面](screenshot.png)
-
-## 核心架构
+## 🏗️ 架构
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
