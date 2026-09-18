@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>运维诊断系统 - Demo</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface2: #232733;
+  --border: #2d3148;
+  --text: #e4e6ed;
+  --text2: #8b8fa3;
+  --accent: #6366f1;
+  --accent2: #818cf8;
+  --green: #22c55e;
+  --yellow: #eab308;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --cyan: #06b6d4;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* Header */
+.header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; height: 56px; position: sticky; top: 0; z-index: 100; }
+.logo { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.logo span { background: linear-gradient(135deg, var(--accent), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.nav { display: flex; gap: 4px; margin-left: 40px; }
+.nav a { padding: 8px 16px; border-radius: 8px; color: var(--text2); text-decoration: none; font-size: 14px; font-weight: 500; transition: all .2s; }
+.nav a:hover { color: var(--text); background: var(--surface2); }
+.nav a.active { color: var(--accent2); background: rgba(99,102,241,.12); }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.badge-green { background: rgba(34,197,94,.15); color: var(--green); }
+
+/* Layout */
+.layout { display: flex; height: calc(100vh - 56px); }
+.sidebar { width: 280px; background: var(--surface); border-right: 1px solid var(--border); padding: 16px; overflow-y: auto; flex-shrink: 0; }
+.main { flex: 1; overflow-y: auto; padding: 24px; }
+
+/* Sidebar */
+.sidebar-title { font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 12px; }
+.route-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 8px; cursor: pointer; transition: all .2s; }
+.route-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.route-card.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.route-card .route-type { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+.route-sop .route-type { color: var(--accent2); }
+.route-skill .route-type { color: var(--cyan); }
+.route-mcp .route-type { color: var(--yellow); }
+.route-card .route-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.route-card .route-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+/* Main content */
+.page-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+.page-subtitle { font-size: 14px; color: var(--text2); margin-bottom: 24px; }
+
+/* Triage panel */
+.triage-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+.triage-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.triage-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.triage-header h3 { font-size: 16px; font-weight: 600; }
+.triage-header p { font-size: 13px; color: var(--text2); }
+
+/* Alert form */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--text2); }
+.form-input { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-size: 14px; outline: none; transition: border .2s; }
+.form-input:focus { border-color: var(--accent); }
+.form-input::placeholder { color: #555; }
+
+/* Buttons */
+.btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; gap: 8px; }
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+.btn-outline:hover { border-color: var(--text2); color: var(--text); }
+.btn-group { display: flex; gap: 8px; margin-top: 16px; }
+
+/* Execution flow */
+.flow { margin-top: 20px; }
+.flow-step { display: flex; gap: 14px; position: relative; }
+.flow-line { position: absolute; left: 15px; top: 32px; bottom: 0; width: 2px; background: var(--border); }
+.flow-step:last-child .flow-line { display: none; }
+.flow-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; position: relative; z-index: 1; }
+.flow-dot.done { background: rgba(34,197,94,.15); color: var(--green); }
+.flow-dot.running { background: rgba(99,102,241,.15); color: var(--accent2); animation: pulse 1.5s infinite; }
+.flow-dot.pending { background: var(--surface2); color: var(--text2); }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .5; } }
+.flow-content { flex: 1; padding-bottom: 20px; }
+.flow-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.flow-desc { font-size: 13px; color: var(--text2); }
+.flow-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-top: 4px; }
+.tag-sop { background: rgba(99,102,241,.15); color: var(--accent2); }
+.tag-skill { background: rgba(6,182,212,.15); color: var(--cyan); }
+.tag-mcp { background: rgba(234,179,8,.15); color: var(--yellow); }
+.tag-tool { background: rgba(59,130,246,.15); color: var(--blue); }
+.tag-time { background: var(--surface2); color: var(--text2); }
+
+/* Report */
+.report { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-top: 20px; }
+.report h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.report-section { margin-bottom: 16px; padding: 14px; background: var(--surface2); border-radius: 8px; border-left: 3px solid var(--accent); }
+.report-section h4 { font-size: 14px; font-weight: 600; margin-bottom: 6px; color: var(--accent2); }
+.report-section p, .report-section li { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.report-section ul { padding-left: 16px; }
+
+/* Stats bar */
+.stats { display: flex; gap: 16px; margin-bottom: 20px; }
+.stat-card { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+.stat-value { font-size: 24px; font-weight: 700; }
+.stat-value.green { color: var(--green); }
+.stat-value.blue { color: var(--blue); }
+.stat-value.yellow { color: var(--yellow); }
+.stat-value.accent { color: var(--accent2); }
+.stat-label { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+/* Animations */
+@keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.animate-in { animation: slideIn .4s ease-out forwards; }
+.delay-1 { animation-delay: .1s; opacity: 0; }
+.delay-2 { animation-delay: .2s; opacity: 0; }
+.delay-3 { animation-delay: .3s; opacity: 0; }
+.delay-4 { animation-delay: .4s; opacity: 0; }
+.delay-5 { animation-delay: .5s; opacity: 0; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">🔧 <span>Ops Agent</span></div>
+  <nav class="nav">
+    <a href="#" class="active">告警分析</a>
+    <a href="#">历史浏览</a>
+    <a href="#">逐帧回放</a>
+  </nav>
+  <div class="header-right">
+    <span class="badge badge-green">● 系统正常</span>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- Sidebar: 三层路由 -->
+  <aside class="sidebar">
+    <div class="sidebar-title">🎯 三层路由</div>
+
+    <div class="route-card route-sop active">
+      <div class="route-type">SOP · 多步编排</div>
+      <div class="route-name">数据库连接池耗尽诊断</div>
+      <div class="route-desc">YAML → LangGraph StateGraph，10 步确定性流程，含人工审批闸门</div>
+    </div>
+
+    <div class="route-card route-sop">
+      <div class="route-type">SOP · 多步编排</div>
+      <div class="route-name">CPU 使用率过高诊断</div>
+      <div class="route-desc">采集指标 → 分析变更 → 拓扑排查 → 生成报告</div>
+    </div>
+
+    <div class="route-card route-skill">
+      <div class="route-type">Skill · 轻量动作</div>
+      <div class="route-name">服务健康检查</div>
+      <div class="route-desc">单函数执行，检查 CPU / 内存 / 磁盘 / 网络</div>
+    </div>
+
+    <div class="route-card route-skill">
+      <div class="route-type">Skill · 轻量动作</div>
+      <div class="route-name">最近变更查询</div>
+      <div class="route-desc">查询 24h 内配置变更和发布记录</div>
+    </div>
+
+    <div class="route-card route-mcp">
+      <div class="route-type">MCP · 单点直调</div>
+      <div class="route-name">query_metrics</div>
+      <div class="route-desc">查询监控指标数据</div>
+    </div>
+
+    <div class="route-card route-mcp">
+      <div class="route-type">MCP · 单点直调</div>
+      <div class="route-name">query_sls</div>
+      <div class="route-desc">查询日志服务</div>
+    </div>
+
+    <div class="route-card route-mcp">
+      <div class="route-type">MCP · 单点直调</div>
+      <div class="route-name">query_topology</div>
+      <div class="route-desc">查询服务拓扑依赖</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="page-title animate-in">告警诊断</div>
+    <div class="page-subtitle animate-in delay-1">意图分类 → 路由分发 → 执行诊断 → 生成报告</div>
+
+    <!-- Stats -->
+    <div class="stats animate-in delay-1">
+      <div class="stat-card">
+        <div class="stat-value accent">7</div>
+        <div class="stat-label">MCP 工具</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value blue">4</div>
+        <div class="stat-label">内置 Skill</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value yellow">2</div>
+        <div class="stat-label">SOP 流程</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value green">3</div>
+        <div class="stat-label">路由路径</div>
+      </div>
+    </div>
+
+    <!-- Alert Input -->
+    <div class="triage-panel animate-in delay-2">
+      <div class="triage-header">
+        <div class="triage-icon" style="background:rgba(99,102,241,.12)">🚨</div>
+        <div>
+          <h3>告警输入 & 意图分类</h3>
+          <p>输入告警信息，系统自动 triage 路由到 SOP / Skill / MCP</p>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">告警来源</label>
+          <input class="form-input" value="Prometheus" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">告警级别</label>
+          <input class="form-input" value="Critical 🔴" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">影响服务</label>
+          <input class="form-input" value="order-service" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Triage 结果</label>
+          <input class="form-input" value="→ SOP: db-connection-pool-exhausted (置信度 0.95)" readonly style="color: var(--accent2);">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">告警消息</label>
+          <input class="form-input" value="数据库连接池耗尽，活跃连接数达到上限 95%，服务 order-service 响应超时" readonly>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary">▶ 开始诊断</button>
+        <button class="btn btn-outline">重新分类</button>
+      </div>
+    </div>
+
+    <!-- Execution Flow -->
+    <div class="triage-panel animate-in delay-3">
+      <div class="triage-header">
+        <div class="triage-icon" style="background:rgba(34,197,94,.12)">⚡</div>
+        <div>
+          <h3>执行流程 · SOP 路径</h3>
+          <p>YAML 编译为 LangGraph StateGraph，确定性代码节点逐步执行</p>
+        </div>
+      </div>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-dot done">✓</div>
+          <div class="flow-line"></div>
+          <div class="flow-content">
+            <div class="flow-title">Triage 意图分类</div>
+            <div class="flow-desc">规则匹配 → SOP: db-connection-pool-exhausted</div>
+            <span class="flow-tag tag-sop">SOP Route</span>
+            <span class="flow-tag tag-time">12ms</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot done">✓</div>
+          <div class="flow-line"></div>
+          <div class="flow-content">
+            <div class="flow-title">collect_db_metrics</div>
+            <div class="flow-desc">query_db → 查询连接池指标，活跃连接 95/100，等待队列 23</div>
+            <span class="flow-tag tag-tool">MCP: query_db</span>
+            <span class="flow-tag tag-time">340ms</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot done">✓</div>
+          <div class="flow-line"></div>
+          <div class="flow-content">
+            <div class="flow-title">collect_dev_changes</div>
+            <div class="flow-desc">query_dev_change → 24h 内 2 次变更：配置修改 + 版本发布</div>
+            <span class="flow-tag tag-tool">MCP: query_dev_change</span>
+            <span class="flow-tag tag-time">280ms</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot done">✓</div>
+          <div class="flow-line"></div>
+          <div class="flow-content">
+            <div class="flow-title">collect_error_logs</div>
+            <div class="flow-desc">query_sls → 156 条 ERROR，Connection timeout to mysql:3306</div>
+            <span class="flow-tag tag-tool">MCP: query_sls</span>
+            <span class="flow-tag tag-time">520ms</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot done">✓</div>
+          <div class="flow-line"></div>
+          <div class="flow-content">
+            <div class="flow-title">analyze_root_cause</div>
+            <div class="flow-desc">LLM 分析 → 根因：连接池 max_active 配置过低 + 慢查询导致连接占用</div>
+            <span class="flow-tag tag-sop">LLM Analysis</span>
+            <span class="flow-tag tag-time">1.2s</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot running">⏸</div>
+          <div class="flow-line"></div>
+          <div class="flow-content">
+            <div class="flow-title">approval_remediation</div>
+            <div class="flow-desc">⚠️ 等待人工审批：是否执行连接池扩容 (max_active: 100 → 200)？</div>
+            <span class="flow-tag tag-sop">Interrupt · 人工闸门</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot pending">5</div>
+          <div class="flow-content">
+            <div class="flow-title">generate_report</div>
+            <div class="flow-desc">生成五段式诊断报告</div>
+            <span class="flow-tag tag-sop">Report Section</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Report Preview -->
+    <div class="report animate-in delay-4">
+      <h3>📋 五段式诊断报告</h3>
+      <div class="report-section">
+        <h4>1. 现象描述</h4>
+        <p>服务 order-service 触发 Critical 告警：数据库连接池活跃连接数达到 95/100（阈值 95%），等待队列积压 23 个请求，P99 延迟从 120ms 飙升至 5200ms。</p>
+      </div>
+      <div class="report-section">
+        <h4>2. 根因分析</h4>
+        <ul>
+          <li><strong>直接原因：</strong>连接池 max_active=100 配置过低，高峰期连接不足</li>
+          <li><strong>根本原因：</strong>24h 前配置变更将 max_active 从 200 降至 100，同时 order-service v2.3.2 引入了慢查询</li>
+          <li><strong>证据链：</strong>变更记录 CHG-001 → 连接池配置修改 → SLS 日志 Connection timeout → 指标趋势确认</li>
+        </ul>
+      </div>
+      <div class="report-section">
+        <h4>3. 影响范围</h4>
+        <p>影响服务：order-service、payment-service（下游依赖）<br>影响用户：约 1,200 活跃用户<br>影响时长：已持续 23 分钟</p>
+      </div>
+      <div class="report-section">
+        <h4>4. 处置方案</h4>
+        <p><strong>紧急：</strong>连接池 max_active 从 100 扩容至 200（需人工审批）<br><strong>长期：</strong>回滚 order-service 至 v2.3.1，修复慢查询后重新发布</p>
+      </div>
+      <div class="report-section">
+        <h4>5. 复盘建议</h4>
+        <ul>
+          <li>配置变更需增加连接池容量下限校验</li>
+          <li>发布流程增加慢查询自动化检测</li>
+          <li>补充连接池使用率 > 80% 的 Warning 告警，提前预警</li>
+        </ul>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>
